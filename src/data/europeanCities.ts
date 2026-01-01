@@ -5,178 +5,180 @@ export interface City {
   lng: number
 }
 
+// Sanitized list: Capital + 2 largest cities per country
 export const europeanCitiesData: City[] = [
-  { name: 'Amsterdam', lat: 52.3676, lng: 4.9041 },
-  { name: 'Athens', lat: 37.9838, lng: 23.7275 },
-  { name: 'Barcelona', lat: 41.3851, lng: 2.1734 },
-  { name: 'Berlin', lat: 52.5200, lng: 13.4050 },
+  // United Kingdom
+  { name: 'London', lat: 51.5074, lng: -0.1278 }, // Capital
   { name: 'Birmingham', lat: 52.4862, lng: -1.8904 },
-  { name: 'Bologna', lat: 44.4949, lng: 11.3426 },
-  { name: 'Bordeaux', lat: 44.8378, lng: -0.5792 },
-  { name: 'Brussels', lat: 50.8503, lng: 4.3517 },
-  { name: 'Budapest', lat: 47.4979, lng: 19.0402 },
-  { name: 'Cologne', lat: 50.9375, lng: 6.9603 },
-  { name: 'Copenhagen', lat: 55.6761, lng: 12.5683 },
-  { name: 'Dublin', lat: 53.3498, lng: -6.2603 },
-  { name: 'Edinburgh', lat: 55.9533, lng: -3.1883 },
-  { name: 'Florence', lat: 43.7696, lng: 11.2558 },
-  { name: 'Frankfurt', lat: 50.1109, lng: 8.6821 },
-  { name: 'Geneva', lat: 46.2044, lng: 6.1432 },
-  { name: 'Glasgow', lat: 55.8642, lng: -4.2518 },
-  { name: 'Hamburg', lat: 53.5511, lng: 9.9937 },
-  { name: 'Helsinki', lat: 60.1699, lng: 24.9384 },
-  { name: 'Istanbul', lat: 41.0082, lng: 28.9784 },
-  { name: 'Krakow', lat: 50.0647, lng: 19.9450 },
-  { name: 'Lisbon', lat: 38.7223, lng: -9.1393 },
-  { name: 'Liverpool', lat: 53.4084, lng: -2.9916 },
-  { name: 'London', lat: 51.5074, lng: -0.1278 },
-  { name: 'Lyon', lat: 45.7640, lng: 4.8357 },
-  { name: 'Madrid', lat: 40.4168, lng: -3.7038 },
   { name: 'Manchester', lat: 53.4808, lng: -2.2426 },
+  
+  // France
+  { name: 'Paris', lat: 48.8566, lng: 2.3522 }, // Capital
+  { name: 'Lyon', lat: 45.7640, lng: 4.8357 },
   { name: 'Marseille', lat: 43.2965, lng: 5.3698 },
-  { name: 'Milan', lat: 45.4642, lng: 9.1900 },
+  
+  // Germany
+  { name: 'Berlin', lat: 52.5200, lng: 13.4050 }, // Capital
+  { name: 'Hamburg', lat: 53.5511, lng: 9.9937 },
   { name: 'Munich', lat: 48.1351, lng: 11.5820 },
+  
+  // Italy
+  { name: 'Rome', lat: 41.9028, lng: 12.4964 }, // Capital
+  { name: 'Milan', lat: 45.4642, lng: 9.1900 },
   { name: 'Naples', lat: 40.8518, lng: 14.2681 },
-  { name: 'Nice', lat: 43.7102, lng: 7.2620 },
-  { name: 'Oslo', lat: 59.9139, lng: 10.7522 },
-  { name: 'Paris', lat: 48.8566, lng: 2.3522 },
-  { name: 'Porto', lat: 41.1579, lng: -8.6291 },
-  { name: 'Prague', lat: 50.0755, lng: 14.4378 },
-  { name: 'Reykjavik', lat: 64.1466, lng: -21.9426 },
-  { name: 'Rome', lat: 41.9028, lng: 12.4964 },
-  { name: 'Rotterdam', lat: 51.9244, lng: 4.4777 },
-  { name: 'Seville', lat: 37.3891, lng: -5.9845 },
-  { name: 'Stockholm', lat: 59.3293, lng: 18.0686 },
-  { name: 'Stuttgart', lat: 48.7758, lng: 9.1829 },
-  { name: 'Thessaloniki', lat: 40.6401, lng: 22.9444 },
-  { name: 'Toulouse', lat: 43.6047, lng: 1.4442 },
+  
+  // Spain
+  { name: 'Madrid', lat: 40.4168, lng: -3.7038 }, // Capital
+  { name: 'Barcelona', lat: 41.3851, lng: 2.1734 },
   { name: 'Valencia', lat: 39.4699, lng: -0.3763 },
-  { name: 'Vienna', lat: 48.2082, lng: 16.3738 },
-  { name: 'Warsaw', lat: 52.2297, lng: 21.0122 },
-  { name: 'Zurich', lat: 47.3769, lng: 8.5417 },
-  { name: 'Aberdeen', lat: 57.1497, lng: -2.0943 },
-  { name: 'Aalborg', lat: 57.0488, lng: 9.9217 },
-  { name: 'Aarhus', lat: 56.1629, lng: 10.2039 },
-  { name: 'Aix-en-Provence', lat: 43.5297, lng: 5.4474 },
-  { name: 'Ajaccio', lat: 41.9267, lng: 8.7369 },
-  { name: 'Alicante', lat: 38.3452, lng: -0.4810 },
-  { name: 'Almeria', lat: 36.8381, lng: -2.4597 },
+  
+  // Netherlands
+  { name: 'Amsterdam', lat: 52.3676, lng: 4.9041 }, // Capital
+  { name: 'Rotterdam', lat: 51.9244, lng: 4.4777 },
+  { name: 'Hague', lat: 52.0705, lng: 4.3007 },
+  
+  // Belgium
+  { name: 'Brussels', lat: 50.8503, lng: 4.3517 }, // Capital
   { name: 'Antwerp', lat: 51.2194, lng: 4.4025 },
-  { name: 'Augsburg', lat: 48.3668, lng: 10.8987 },
-  { name: 'Bari', lat: 41.1177, lng: 16.8719 },
-  { name: 'Basel', lat: 47.5596, lng: 7.5886 },
-  { name: 'Belfast', lat: 54.5973, lng: -5.9301 },
-  { name: 'Bergen', lat: 60.3913, lng: 5.3221 },
-  { name: 'Bilbao', lat: 43.2627, lng: -2.9253 },
-  { name: 'Bonn', lat: 50.7374, lng: 7.0982 },
+  { name: 'Ghent', lat: 51.0543, lng: 3.7174 },
+  
+  // Portugal
+  { name: 'Lisbon', lat: 38.7223, lng: -9.1393 }, // Capital
+  { name: 'Porto', lat: 41.1579, lng: -8.6291 },
   { name: 'Braga', lat: 41.5518, lng: -8.4229 },
-  { name: 'Bratislava', lat: 48.1486, lng: 17.1077 },
-  { name: 'Bremen', lat: 53.0793, lng: 8.8017 },
-  { name: 'Brighton', lat: 50.8225, lng: -0.1372 },
-  { name: 'Bristol', lat: 51.4545, lng: -2.5879 },
+  
+  // Greece
+  { name: 'Athens', lat: 37.9838, lng: 23.7275 }, // Capital
+  { name: 'Thessaloniki', lat: 40.6401, lng: 22.9444 },
+  { name: 'Patras', lat: 38.2466, lng: 21.7346 },
+  
+  // Poland
+  { name: 'Warsaw', lat: 52.2297, lng: 21.0122 }, // Capital
+  { name: 'Krakow', lat: 50.0647, lng: 19.9450 },
+  { name: 'Lodz', lat: 51.7592, lng: 19.4560 },
+  
+  // Czech Republic
+  { name: 'Prague', lat: 50.0755, lng: 14.4378 }, // Capital
   { name: 'Brno', lat: 49.1951, lng: 16.6068 },
-  { name: 'Bucharest', lat: 44.4268, lng: 26.1025 },
-  { name: 'Burgas', lat: 42.5048, lng: 27.4626 },
-  { name: 'Cardiff', lat: 51.4816, lng: -3.1791 },
-  { name: 'Catania', lat: 37.5079, lng: 15.0830 },
-  { name: 'Charleroi', lat: 50.4108, lng: 4.4446 },
-  { name: 'Chemnitz', lat: 50.8278, lng: 12.9214 },
+  { name: 'Ostrava', lat: 49.8209, lng: 18.2625 },
+  
+  // Romania
+  { name: 'Bucharest', lat: 44.4268, lng: 26.1025 }, // Capital
   { name: 'Cluj-Napoca', lat: 46.7712, lng: 23.6236 },
   { name: 'Constanta', lat: 44.1598, lng: 28.6348 },
-  { name: 'Cork', lat: 51.8985, lng: -8.4756 },
-  { name: 'Coventry', lat: 52.4068, lng: -1.5197 },
-  { name: 'Dortmund', lat: 51.5136, lng: 7.4653 },
-  { name: 'Dresden', lat: 51.0504, lng: 13.7373 },
-  { name: 'Duisburg', lat: 51.4344, lng: 6.7623 },
-  { name: 'Düsseldorf', lat: 51.2277, lng: 6.7735 },
-  { name: 'Eindhoven', lat: 51.4416, lng: 5.4697 },
-  { name: 'Essen', lat: 51.4556, lng: 7.0116 },
-  { name: 'Faro', lat: 37.0194, lng: -7.9322 },
-  { name: 'Freiburg', lat: 47.9990, lng: 7.8421 },
-  { name: 'Gdansk', lat: 54.3520, lng: 18.6466 },
-  { name: 'Genoa', lat: 44.4056, lng: 8.9463 },
-  { name: 'Ghent', lat: 51.0543, lng: 3.7174 },
-  { name: 'Gijon', lat: 43.5322, lng: -5.6611 },
-  { name: 'Gothenburg', lat: 57.7089, lng: 11.9746 },
-  { name: 'Graz', lat: 47.0707, lng: 15.4395 },
-  { name: 'Grenoble', lat: 45.1885, lng: 5.7245 },
-  { name: 'Hague', lat: 52.0705, lng: 4.3007 },
-  { name: 'Hannover', lat: 52.3759, lng: 9.7320 },
-  { name: 'Heidelberg', lat: 49.3988, lng: 8.6724 },
-  { name: 'Innsbruck', lat: 47.2692, lng: 11.4041 },
-  { name: 'Karlsruhe', lat: 49.0069, lng: 8.4037 },
-  { name: 'Kassel', lat: 51.3127, lng: 9.4797 },
-  { name: 'Kiel', lat: 54.3233, lng: 10.1228 },
-  { name: 'Kiev', lat: 50.4501, lng: 30.5234 },
-  { name: 'Klaipeda', lat: 55.7033, lng: 21.1443 },
-  { name: 'Lausanne', lat: 46.5197, lng: 6.6323 },
-  { name: 'Leeds', lat: 53.8008, lng: -1.5491 },
-  { name: 'Leicester', lat: 52.6369, lng: -1.1398 },
-  { name: 'Leipzig', lat: 51.3397, lng: 12.3731 },
-  { name: 'Leuven', lat: 50.8798, lng: 4.7005 },
-  { name: 'Liege', lat: 50.6326, lng: 5.5797 },
-  { name: 'Lille', lat: 50.6292, lng: 3.0573 },
-  { name: 'Linz', lat: 48.3069, lng: 14.2858 },
-  { name: 'Ljubljana', lat: 46.0569, lng: 14.5058 },
-  { name: 'Lodz', lat: 51.7592, lng: 19.4560 },
-  { name: 'Lublin', lat: 51.2465, lng: 22.5684 },
-  { name: 'Luxembourg', lat: 49.6116, lng: 6.1319 },
-  { name: 'Malaga', lat: 36.7213, lng: -4.4214 },
-  { name: 'Malmo', lat: 55.6059, lng: 13.0007 },
-  { name: 'Mannheim', lat: 49.4875, lng: 8.4660 },
-  { name: 'Minsk', lat: 53.9045, lng: 27.5615 },
-  { name: 'Modena', lat: 44.6471, lng: 10.9252 },
-  { name: 'Montpellier', lat: 43.6108, lng: 3.8767 },
-  { name: 'Mulhouse', lat: 47.7508, lng: 7.3359 },
-  { name: 'Munster', lat: 51.9625, lng: 7.6256 },
-  { name: 'Murcia', lat: 37.9922, lng: -1.1307 },
-  { name: 'Nantes', lat: 47.2184, lng: -1.5536 },
-  { name: 'Newcastle', lat: 54.9783, lng: -1.6178 },
-  { name: 'Nicosia', lat: 35.1856, lng: 33.3823 },
-  { name: 'Nijmegen', lat: 51.8426, lng: 5.8598 },
-  { name: 'Nottingham', lat: 52.9548, lng: -1.1581 },
-  { name: 'Nuremberg', lat: 49.4521, lng: 11.0767 },
-  { name: 'Odessa', lat: 46.4825, lng: 30.7233 },
-  { name: 'Ostrava', lat: 49.8209, lng: 18.2625 },
-  { name: 'Palermo', lat: 38.1157, lng: 13.3613 },
-  { name: 'Pamplona', lat: 42.8125, lng: -1.6458 },
-  { name: 'Patras', lat: 38.2466, lng: 21.7346 },
-  { name: 'Pescara', lat: 42.4581, lng: 14.2138 },
-  { name: 'Plovdiv', lat: 42.1354, lng: 24.7453 },
-  { name: 'Poznan', lat: 52.4064, lng: 16.9252 },
-  { name: 'Rennes', lat: 48.1173, lng: -1.6778 },
-  { name: 'Riga', lat: 56.9496, lng: 24.1052 },
-  { name: 'Rijeka', lat: 45.3271, lng: 14.4422 },
-  { name: 'Rimini', lat: 44.0678, lng: 12.5695 },
-  { name: 'Rostock', lat: 54.0924, lng: 12.0991 },
-  { name: 'Rouen', lat: 49.4431, lng: 1.0993 },
-  { name: 'Salzburg', lat: 47.8095, lng: 13.0550 },
-  { name: 'Santander', lat: 43.4623, lng: -3.8099 },
-  { name: 'Sarajevo', lat: 43.8563, lng: 18.4131 },
-  { name: 'Sofia', lat: 42.6977, lng: 23.3219 },
-  { name: 'Split', lat: 43.5081, lng: 16.4402 },
-  { name: 'Strasbourg', lat: 48.5734, lng: 7.7521 },
-  { name: 'Swansea', lat: 51.6214, lng: -3.9436 },
+  
+  // Hungary
+  { name: 'Budapest', lat: 47.4979, lng: 19.0402 }, // Capital
   { name: 'Szeged', lat: 46.2530, lng: 20.1414 },
-  { name: 'Tallinn', lat: 59.4370, lng: 24.7536 },
+  { name: 'Debrecen', lat: 47.5316, lng: 21.6273 },
+  
+  // Austria
+  { name: 'Vienna', lat: 48.2082, lng: 16.3738 }, // Capital
+  { name: 'Graz', lat: 47.0707, lng: 15.4395 },
+  { name: 'Linz', lat: 48.3069, lng: 14.2858 },
+  
+  // Switzerland
+  { name: 'Bern', lat: 46.9481, lng: 7.4474 }, // Capital
+  { name: 'Zurich', lat: 47.3769, lng: 8.5417 },
+  { name: 'Geneva', lat: 46.2044, lng: 6.1432 },
+  
+  // Sweden
+  { name: 'Stockholm', lat: 59.3293, lng: 18.0686 }, // Capital
+  { name: 'Gothenburg', lat: 57.7089, lng: 11.9746 },
+  { name: 'Malmo', lat: 55.6059, lng: 13.0007 },
+  
+  // Norway
+  { name: 'Oslo', lat: 59.9139, lng: 10.7522 }, // Capital
+  { name: 'Bergen', lat: 60.3913, lng: 5.3221 },
+  { name: 'Trondheim', lat: 63.4305, lng: 10.3951 },
+  
+  // Denmark
+  { name: 'Copenhagen', lat: 55.6761, lng: 12.5683 }, // Capital
+  { name: 'Aarhus', lat: 56.1629, lng: 10.2039 },
+  { name: 'Aalborg', lat: 57.0488, lng: 9.9217 },
+  
+  // Finland
+  { name: 'Helsinki', lat: 60.1699, lng: 24.9384 }, // Capital
   { name: 'Tampere', lat: 61.4981, lng: 23.7610 },
-  { name: 'Tarragona', lat: 41.1189, lng: 1.2445 },
-  { name: 'Tartu', lat: 58.3780, lng: 26.7290 },
-  { name: 'Timisoara', lat: 45.7489, lng: 21.2087 },
-  { name: 'Toulon', lat: 43.1242, lng: 5.9280 },
-  { name: 'Trento', lat: 46.0748, lng: 11.1217 },
-  { name: 'Trieste', lat: 45.6495, lng: 13.7768 },
-  { name: 'Turin', lat: 45.0703, lng: 7.6869 },
-  { name: 'Utrecht', lat: 52.0907, lng: 5.1214 },
-  { name: 'Valladolid', lat: 41.6523, lng: -4.7245 },
+  { name: 'Turku', lat: 60.4518, lng: 22.2666 },
+  
+  // Ireland
+  { name: 'Dublin', lat: 53.3498, lng: -6.2603 }, // Capital
+  { name: 'Cork', lat: 51.8985, lng: -8.4756 },
+  { name: 'Limerick', lat: 52.6638, lng: -8.6268 },
+  
+  // Bulgaria
+  { name: 'Sofia', lat: 42.6977, lng: 23.3219 }, // Capital
+  { name: 'Plovdiv', lat: 42.1354, lng: 24.7453 },
   { name: 'Varna', lat: 43.2141, lng: 27.9147 },
-  { name: 'Venice', lat: 45.4408, lng: 12.3155 },
-  { name: 'Verona', lat: 45.4384, lng: 10.9916 },
-  { name: 'Vilnius', lat: 54.6872, lng: 25.2797 },
-  { name: 'Wroclaw', lat: 51.1079, lng: 17.0385 },
-  { name: 'Zagreb', lat: 45.8150, lng: 15.9819 },
-  { name: 'Zaragoza', lat: 41.6488, lng: -0.8891 },
-  { name: 'Zlin', lat: 49.2264, lng: 17.6700 },
+  
+  // Croatia
+  { name: 'Zagreb', lat: 45.8150, lng: 15.9819 }, // Capital
+  { name: 'Split', lat: 43.5081, lng: 16.4402 },
+  { name: 'Rijeka', lat: 45.3271, lng: 14.4422 },
+  
+  // Slovenia
+  { name: 'Ljubljana', lat: 46.0569, lng: 14.5058 }, // Capital
+  { name: 'Maribor', lat: 46.5547, lng: 15.6459 },
+  { name: 'Celje', lat: 46.2389, lng: 15.2606 },
+  
+  // Slovakia
+  { name: 'Bratislava', lat: 48.1486, lng: 17.1077 }, // Capital
+  { name: 'Kosice', lat: 48.7139, lng: 21.2581 },
+  { name: 'Presov', lat: 49.0016, lng: 21.2393 },
+  
+  // Lithuania
+  { name: 'Vilnius', lat: 54.6872, lng: 25.2797 }, // Capital
+  { name: 'Kaunas', lat: 54.8985, lng: 23.9036 },
+  { name: 'Klaipeda', lat: 55.7033, lng: 21.1443 },
+  
+  // Latvia
+  { name: 'Riga', lat: 56.9496, lng: 24.1052 }, // Capital
+  { name: 'Daugavpils', lat: 55.8753, lng: 26.5358 },
+  { name: 'Liepaja', lat: 56.5047, lng: 21.0108 },
+  
+  // Estonia
+  { name: 'Tallinn', lat: 59.4370, lng: 24.7536 }, // Capital
+  { name: 'Tartu', lat: 58.3780, lng: 26.7290 },
+  { name: 'Narva', lat: 59.3753, lng: 28.1900 },
+  
+  // Iceland
+  { name: 'Reykjavik', lat: 64.1466, lng: -21.9426 }, // Capital
+  { name: 'Akureyri', lat: 65.6836, lng: -18.0878 },
+  { name: 'Kopavogur', lat: 64.1124, lng: -21.9126 },
+  
+  // Cyprus
+  { name: 'Nicosia', lat: 35.1856, lng: 33.3823 }, // Capital
+  { name: 'Limassol', lat: 34.6841, lng: 33.0379 },
+  { name: 'Larnaca', lat: 34.9167, lng: 33.6167 },
+  
+  // Luxembourg
+  { name: 'Luxembourg', lat: 49.6116, lng: 6.1319 }, // Capital (city-state)
+  
+  // Malta
+  { name: 'Valletta', lat: 35.8989, lng: 14.5146 }, // Capital
+  { name: 'Birkirkara', lat: 35.8972, lng: 14.4614 },
+  { name: 'Mosta', lat: 35.9097, lng: 14.4256 },
+  
+  // Bosnia and Herzegovina
+  { name: 'Sarajevo', lat: 43.8563, lng: 18.4131 }, // Capital
+  { name: 'Banja Luka', lat: 44.7722, lng: 17.1910 },
+  { name: 'Tuzla', lat: 44.5384, lng: 18.6676 },
+  
+  // Serbia
+  { name: 'Belgrade', lat: 44.7866, lng: 20.4489 }, // Capital
+  { name: 'Novi Sad', lat: 45.2671, lng: 19.8335 },
+  { name: 'Nis', lat: 43.3209, lng: 21.8958 },
+  
+  // Ukraine
+  { name: 'Kiev', lat: 50.4501, lng: 30.5234 }, // Capital
+  { name: 'Kharkiv', lat: 49.9935, lng: 36.2304 },
+  { name: 'Odessa', lat: 46.4825, lng: 30.7233 },
+  
+  // Belarus
+  { name: 'Minsk', lat: 53.9045, lng: 27.5615 }, // Capital
+  { name: 'Gomel', lat: 52.4412, lng: 30.9878 },
+  { name: 'Mogilev', lat: 53.9167, lng: 30.3500 },
 ]
 
 // Export city names array for autocomplete
