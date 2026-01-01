@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Container, AppBar, Toolbar, Typography, Box } from '@mui/material'
+import { Container, AppBar, Toolbar, Typography, Box, Autocomplete, TextField } from '@mui/material'
 import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import type { GeoJsonObject } from 'geojson'
+import { europeanCities } from './data/europeanCities'
 import './App.css'
 
 // Fix for default marker icons in react-leaflet
@@ -43,7 +44,7 @@ function App() {
           </Typography>
         </Toolbar>
       </AppBar>
-      <Container maxWidth="xs" sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: 0, height: '100%', overflow: 'hidden' }}>
+      <Container maxWidth="xs" sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: 0, height: '100%', overflow: 'hidden', position: 'relative' }}>
         <Box sx={{ flex: 1, width: '100%', height: '100%', position: 'relative' }}>
           <MapContainer
             center={[54.5, 15.0]}
@@ -57,6 +58,44 @@ function App() {
             />
             {geoJsonData && <GeoJSON data={geoJsonData} />}
           </MapContainer>
+        </Box>
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: 16,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '80%',
+            zIndex: 1000,
+            backgroundColor: 'background.paper',
+            borderRadius: 1,
+          }}
+        >
+          <Autocomplete
+            options={europeanCities}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Search European Cities"
+                variant="outlined"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    fontSize: '1.2rem',
+                    padding: '12px',
+                    minHeight: '56px',
+                  },
+                  '& .MuiInputLabel-root': {
+                    fontSize: '1.1rem',
+                  },
+                }}
+              />
+            )}
+            sx={{
+              '& .MuiAutocomplete-inputRoot': {
+                fontSize: '1.2rem',
+              },
+            }}
+          />
         </Box>
       </Container>
     </Box>

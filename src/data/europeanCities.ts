@@ -1,0 +1,30 @@
+// Comprehensive list of European cities
+export const europeanCities = [
+  'Amsterdam', 'Athens', 'Barcelona', 'Berlin', 'Birmingham', 'Bologna', 'Bordeaux',
+  'Brussels', 'Budapest', 'Cologne', 'Copenhagen', 'Dublin', 'Edinburgh', 'Florence',
+  'Frankfurt', 'Geneva', 'Glasgow', 'Hamburg', 'Helsinki', 'Istanbul', 'Krakow',
+  'Lisbon', 'Liverpool', 'London', 'Lyon', 'Madrid', 'Manchester', 'Marseille',
+  'Milan', 'Munich', 'Naples', 'Nice', 'Oslo', 'Paris', 'Porto', 'Prague',
+  'Reykjavik', 'Rome', 'Rotterdam', 'Seville', 'Stockholm', 'Stuttgart', 'Thessaloniki',
+  'Toulouse', 'Valencia', 'Vienna', 'Warsaw', 'Zurich', 'Aberdeen', 'Aalborg',
+  'Aarhus', 'Aix-en-Provence', 'Ajaccio', 'Alicante', 'Almeria', 'Antwerp', 'Augsburg',
+  'Bari', 'Basel', 'Belfast', 'Bergen', 'Bilbao', 'Birmingham', 'Bologna', 'Bonn',
+  'Bordeaux', 'Braga', 'Bratislava', 'Bremen', 'Brighton', 'Bristol', 'Brno',
+  'Bucharest', 'Burgas', 'Cardiff', 'Catania', 'Charleroi', 'Chemnitz', 'Cluj-Napoca',
+  'Constanta', 'Cork', 'Coventry', 'Cracow', 'Dortmund', 'Dresden', 'Duisburg',
+  'Düsseldorf', 'Eindhoven', 'Essen', 'Faro', 'Freiburg', 'Gdansk', 'Genoa',
+  'Ghent', 'Gijon', 'Gothenburg', 'Graz', 'Grenoble', 'Hague', 'Hamburg', 'Hannover',
+  'Heidelberg', 'Innsbruck', 'Karlsruhe', 'Kassel', 'Kiel', 'Kiev', 'Klaipeda',
+  'Krakow', 'Lausanne', 'Leeds', 'Leicester', 'Leipzig', 'Leuven', 'Liege',
+  'Lille', 'Linz', 'Ljubljana', 'Lodz', 'Lublin', 'Luxembourg', 'Lyon', 'Malaga',
+  'Malmo', 'Mannheim', 'Marseille', 'Minsk', 'Modena', 'Montpellier', 'Mulhouse',
+  'Munster', 'Murcia', 'Nantes', 'Newcastle', 'Nicosia', 'Nijmegen', 'Nottingham',
+  'Nuremberg', 'Odessa', 'Oporto', 'Ostrava', 'Palermo', 'Pamplona', 'Patras',
+  'Pescara', 'Plovdiv', 'Poznan', 'Rennes', 'Riga', 'Rijeka', 'Rimini', 'Rostock',
+  'Rotterdam', 'Rouen', 'Salzburg', 'Santander', 'Sarajevo', 'Sofia', 'Split',
+  'Strasbourg', 'Stuttgart', 'Swansea', 'Szeged', 'Tallinn', 'Tampere', 'Tarragona',
+  'Tartu', 'Thessaloniki', 'Timisoara', 'Toulon', 'Toulouse', 'Trento', 'Trieste',
+  'Turin', 'Utrecht', 'Valencia', 'Valladolid', 'Varna', 'Venice', 'Verona',
+  'Vilnius', 'Wroclaw', 'Zagreb', 'Zaragoza', 'Zaragoza', 'Zlin'
+]
+
