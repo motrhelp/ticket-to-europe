@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Container, AppBar, Toolbar, Typography, Box, Autocomplete, TextField } from '@mui/material'
-import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, GeoJSON, useMap, Popup, Marker } from 'react-leaflet'
 import L from 'leaflet'
 import type { GeoJsonObject } from 'geojson'
-import { europeanCities } from './data/europeanCities'
+import { europeanCities, europeanCitiesData } from './data/europeanCities'
 import './App.css'
 
 // Fix for default marker icons in react-leaflet
@@ -25,6 +25,22 @@ function MapResizeHandler() {
   return null
 }
 
+// Component for city marker with popup
+function CityMarker({ city }: { city: { name: string; lat: number; lng: number } }) {
+  const dotIcon = L.divIcon({
+    className: 'custom-dot-icon',
+    html: '<div style="width: 8px; height: 8px; background-color: #1976d2; border-radius: 50%; border: 1px solid #1976d2;"></div>',
+    iconSize: [8, 8],
+    iconAnchor: [4, 4],
+  })
+
+  return (
+    <Marker position={[city.lat, city.lng]} icon={dotIcon}>
+      <Popup>{city.name}</Popup>
+    </Marker>
+  )
+}
+
 function App() {
   const [geoJsonData, setGeoJsonData] = useState<GeoJsonObject | null>(null)
 
@@ -44,7 +60,7 @@ function App() {
           </Typography>
         </Toolbar>
       </AppBar>
-      <Container maxWidth="xs" sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: 0, height: '100%', overflow: 'hidden', position: 'relative' }}>
+      <Container sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: 0, height: '100%', overflow: 'hidden', position: 'relative' }}>
         <Box sx={{ flex: 1, width: '100%', height: '100%', position: 'relative' }}>
           <MapContainer
             center={[54.5, 15.0]}
@@ -57,6 +73,9 @@ function App() {
               url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
             />
             {geoJsonData && <GeoJSON data={geoJsonData} />}
+            {europeanCitiesData.map((city) => (
+              <CityMarker key={city.name} city={city} />
+            ))}
           </MapContainer>
         </Box>
         <Box
