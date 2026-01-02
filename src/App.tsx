@@ -4,6 +4,8 @@ import { MapContainer, TileLayer, GeoJSON, useMap, Popup, Marker } from 'react-l
 import L from 'leaflet'
 import type { GeoJsonObject } from 'geojson'
 import { europeanCities, europeanCitiesData } from './data/europeanCities'
+import { CitySelector } from './game/CitySelector'
+import type { City } from './data/europeanCities'
 import './App.css'
 
 // Fix for default marker icons in react-leaflet
@@ -26,12 +28,14 @@ function MapResizeHandler() {
 }
 
 // Component for city marker with popup
-function CityMarker({ city }: { city: { name: string; lat: number; lng: number } }) {
+function CityMarker({ city, isTargetCity }: { city: { name: string; lat: number; lng: number }; isTargetCity: boolean }) {
+  const size = isTargetCity ? 14 : 8
+  const color = isTargetCity ? '#FF6B35' : '#1976d2' // Dutch Orange for target city
   const dotIcon = L.divIcon({
     className: 'custom-dot-icon',
-    html: '<div style="width: 8px; height: 8px; background-color: #1976d2; border-radius: 50%; border: 1px solid #1976d2;"></div>',
-    iconSize: [8, 8],
-    iconAnchor: [4, 4],
+    html: `<div style="width: ${size}px; height: ${size}px; background-color: ${color}; border-radius: 50%; border: 1px solid ${color};"></div>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
   })
 
   return (
@@ -43,12 +47,18 @@ function CityMarker({ city }: { city: { name: string; lat: number; lng: number }
 
 function App() {
   const [geoJsonData, setGeoJsonData] = useState<GeoJsonObject | null>(null)
+  const [cityOfTheDay, setCityOfTheDay] = useState<City | null>(null)
 
   useEffect(() => {
     fetch('/europe.geojson')
       .then((response) => response.json())
       .then((data) => setGeoJsonData(data))
       .catch((error) => console.error('Error loading GeoJSON:', error))
+  }, [])
+
+  useEffect(() => {
+    const selector = new CitySelector()
+    setCityOfTheDay(selector.getCityOfTheDay())
   }, [])
 
   return (
@@ -74,7 +84,11 @@ function App() {
             />
             {geoJsonData && <GeoJSON data={geoJsonData} />}
             {europeanCitiesData.map((city) => (
-              <CityMarker key={city.name} city={city} />
+              <CityMarker 
+                key={city.name} 
+                city={city} 
+                isTargetCity={cityOfTheDay?.name === city.name}
+              />
             ))}
           </MapContainer>
         </Box>
