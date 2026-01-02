@@ -1,8 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { Container, AppBar, Toolbar, Typography, Box, Autocomplete, TextField } from '@mui/material'
-import { MapContainer, TileLayer, GeoJSON, useMap, Popup, Marker } from 'react-leaflet'
+import { MapContainer, TileLayer, useMap, Popup, Marker } from 'react-leaflet'
 import L from 'leaflet'
-import type { GeoJsonObject } from 'geojson'
 import { europeanCities, europeanCitiesData } from './data/europeanCities'
 import { CitySelector } from './game/CitySelector'
 import type { City } from './data/europeanCities'
@@ -84,19 +83,11 @@ function CityMarker({
 }
 
 function App() {
-  const [geoJsonData, setGeoJsonData] = useState<GeoJsonObject | null>(null)
   const [cityOfTheDay, setCityOfTheDay] = useState<City | null>(null)
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
   const [message, setMessage] = useState<string>('')
   const [guesses, setGuesses] = useState<string[]>([])
   const [lastGuessedCity, setLastGuessedCity] = useState<string | null>(null)
-
-  useEffect(() => {
-    fetch('/europe.geojson')
-      .then((response) => response.json())
-      .then((data) => setGeoJsonData(data))
-      .catch((error) => console.error('Error loading GeoJSON:', error))
-  }, [])
 
   useEffect(() => {
     const selector = new CitySelector()
@@ -142,7 +133,6 @@ function App() {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>'
               url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
             />
-            {geoJsonData && <GeoJSON data={geoJsonData} />}
             {europeanCitiesData.map((city) => (
               <CityMarker 
                 key={city.name} 
