@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { Container, AppBar, Toolbar, Typography, Box, Autocomplete, TextField } from '@mui/material'
-import { MapContainer, TileLayer, useMap, Popup, Marker, GeoJSON } from 'react-leaflet'
+import { MapContainer, TileLayer, useMap, Popup, Marker, GeoJSON, Polyline } from 'react-leaflet'
 import L from 'leaflet'
 import type { GeoJsonObject } from 'geojson'
 import { europeanCitiesData, europeanCities } from './data/europeanCities'
@@ -25,6 +25,60 @@ function MapResizeHandler() {
     }, 100)
   }, [map])
   return null
+}
+
+// Helper function to generate arc points between two cities
+function generateArcPoints(city1: City, city2: City, numPoints: number = 30): [number, number][] {
+  const points: [number, number][] = []
+  
+  // Calculate distance and direction vector
+  const dx = city2.lng - city1.lng
+  const dy = city2.lat - city1.lat
+  const distance = Math.sqrt(dx * dx + dy * dy)
+  
+  // Calculate perpendicular offset for arc height
+  // Use a fraction of the distance to create a nice curve
+  const arcHeight = distance * 0.25 // Adjust this to change arc height
+  
+  // Calculate perpendicular vector (rotated 90 degrees counterclockwise)
+  const perpX = -dy / distance
+  const perpY = dx / distance
+  
+  // Generate points along the arc
+  for (let i = 0; i <= numPoints; i++) {
+    const t = i / numPoints
+    
+    // Linear interpolation between cities
+    const baseLat = city1.lat + (city2.lat - city1.lat) * t
+    const baseLng = city1.lng + (city2.lng - city1.lng) * t
+    
+    // Add perpendicular offset to create arc
+    // Use a quadratic curve (ease in/out) for smoother arc
+    // This creates a curve that peaks at the midpoint (t=0.5)
+    const offsetFactor = 4 * t * (1 - t) // Creates a smooth curve from 0 to 1 and back to 0
+    const offsetLat = perpX * arcHeight * offsetFactor
+    const offsetLng = perpY * arcHeight * offsetFactor
+    
+    points.push([baseLat + offsetLat, baseLng + offsetLng])
+  }
+  
+  return points
+}
+
+// Component to draw an arc between two cities
+function CityArc({ city1, city2 }: { city1: City; city2: City }) {
+  const arcPoints = generateArcPoints(city1, city2)
+  
+  return (
+    <Polyline
+      positions={arcPoints}
+      pathOptions={{
+        color: '#4caf50',
+        weight: 3,
+        opacity: 0.7,
+      }}
+    />
+  )
 }
 
 // Component for city marker with popup
@@ -223,6 +277,14 @@ function App() {
                 })}
               />
             )}
+            {/* Draw arcs between consecutive guessed cities */}
+            {guessedCities.length > 1 && guessedCities.map((city, index) => {
+              if (index === 0) return null // Skip first city (no previous city to connect)
+              const previousCity = guessedCities[index - 1]
+              return (
+                <CityArc key={`arc-${previousCity.name}-${city.name}`} city1={previousCity} city2={city} />
+              )
+            })}
             {europeanCitiesData.map((city) => {
               const isStartingCity = startingCity?.name === city.name && guessedCities.length === 0
               const isHighlighted = currentHighlightedCity?.name === city.name && !isStartingCity
