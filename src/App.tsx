@@ -33,12 +33,14 @@ function CityMarker({
   isHighlighted, 
   isAvailable,
   isGuessed,
+  isWrongGuess,
   openPopup
 }: { 
   city: { name: string; lat: number; lng: number }
   isHighlighted: boolean
   isAvailable: boolean
   isGuessed: boolean
+  isWrongGuess: boolean
   openPopup: boolean
 }) {
   const markerRef = useRef<L.Marker>(null)
@@ -59,7 +61,11 @@ function CityMarker({
   let color = '#cccccc' // gray for unavailable cities
   let borderColor = '#999999'
   
-  if (isGuessed) {
+  if (isWrongGuess) {
+    size = 12
+    color = '#f44336' // red for wrong guesses
+    borderColor = '#d32f2f'
+  } else if (isGuessed) {
     size = 14
     color = '#4caf50' // green for guessed cities
     borderColor = '#2e7d32'
@@ -93,9 +99,13 @@ function App() {
   const [currentHighlightedCity, setCurrentHighlightedCity] = useState<City | null>(null)
   const [availableCities, setAvailableCities] = useState<City[]>([])
   const [guessedCities, setGuessedCities] = useState<City[]>([])
+  const [wrongGuesses, setWrongGuesses] = useState<City[]>([])
   const [lastGuessedCity, setLastGuessedCity] = useState<City | null>(null)
   const [message, setMessage] = useState<string>('')
   const [geoJsonData, setGeoJsonData] = useState<GeoJsonObject | null>(null)
+  const [autocompleteValue, setAutocompleteValue] = useState<string | null>(null)
+  const [autocompleteInputValue, setAutocompleteInputValue] = useState<string>('')
+  const [autocompleteKey, setAutocompleteKey] = useState<number>(0)
 
   // Load GeoJSON data
   useEffect(() => {
@@ -125,28 +135,45 @@ function App() {
   }, [selector])
 
   const handleGuess = (cityName: string | null) => {
-    if (!cityName || !currentHighlightedCity) return
+    // Clear autocomplete by resetting key (forces re-render)
+    setAutocompleteValue(null)
+    setAutocompleteInputValue('')
+    setAutocompleteKey(prev => prev + 1)
+    
+    if (!cityName || !currentHighlightedCity) {
+      return
+    }
     
     // Find the city object
     const guessedCity = europeanCitiesData.find(c => c.name === cityName)
     if (!guessedCity) return
     
-    // Check if it's in the available cities
-    const isAvailable = availableCities.some(c => c.name === cityName)
-    if (!isAvailable) {
-      setMessage(`${cityName} is not available. Choose one of the highlighted cities.`)
-      setTimeout(() => setMessage(''), 2000)
-      return
-    }
-    
-    // Check if already guessed
+    // Check if already guessed (correctly)
     if (guessedCities.some(c => c.name === cityName)) {
       setMessage(`You already guessed ${cityName}.`)
       setTimeout(() => setMessage(''), 2000)
       return
     }
     
-    // Add to guessed cities
+    // Check if it's a wrong guess
+    if (wrongGuesses.some(c => c.name === cityName)) {
+      setMessage(`${cityName} was already guessed incorrectly.`)
+      setTimeout(() => setMessage(''), 2000)
+      return
+    }
+    
+    // Check if it's in the available cities
+    const isAvailable = availableCities.some(c => c.name === cityName)
+    
+    if (!isAvailable) {
+      // Wrong guess - not in available cities
+      setWrongGuesses(prev => [...prev, guessedCity])
+      setMessage(`${cityName} is not available. Choose one of the highlighted cities.`)
+      setTimeout(() => setMessage(''), 2000)
+      return
+    }
+    
+    // Correct guess - add to guessed cities
     const newGuessedCities = [...guessedCities, guessedCity]
     setGuessedCities(newGuessedCities)
     setLastGuessedCity(guessedCity)
@@ -154,8 +181,9 @@ function App() {
     // Update highlighted city to the guessed city
     setCurrentHighlightedCity(guessedCity)
     
-    // Find 3 closest cities to the newly guessed city (excluding all guessed cities)
-    const newAvailableCities = selector.findClosestCities(guessedCity, newGuessedCities, 3)
+    // Find 3 closest cities to the newly guessed city (excluding all guessed cities and wrong guesses)
+    const excludedCities = [...newGuessedCities, ...wrongGuesses]
+    const newAvailableCities = selector.findClosestCities(guessedCity, excludedCities, 3)
     setAvailableCities(newAvailableCities)
     
     // Show success message
@@ -200,6 +228,7 @@ function App() {
               const isHighlighted = currentHighlightedCity?.name === city.name && !isStartingCity
               const isAvailable = availableCities.some(c => c.name === city.name)
               const isGuessed = guessedCities.some(c => c.name === city.name) || isStartingCity
+              const isWrongGuess = wrongGuesses.some(c => c.name === city.name)
               
               return (
                 <CityMarker 
@@ -208,6 +237,7 @@ function App() {
                   isHighlighted={isHighlighted}
                   isAvailable={isAvailable}
                   isGuessed={isGuessed}
+                  isWrongGuess={isWrongGuess}
                   openPopup={lastGuessedCity?.name === city.name}
                 />
               )
@@ -255,8 +285,14 @@ function App() {
           }}
         >
           <Autocomplete
+            key={autocompleteKey}
+            value={autocompleteValue}
+            inputValue={autocompleteInputValue}
             options={europeanCities}
             onChange={(_, value) => handleGuess(value)}
+            onInputChange={(_, newInputValue) => {
+              setAutocompleteInputValue(newInputValue)
+            }}
             renderInput={(params) => (
               <TextField
                 {...params}
