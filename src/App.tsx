@@ -27,53 +27,126 @@ function MapResizeHandler() {
   return null
 }
 
-// Helper function to generate arc points between two cities
-function generateArcPoints(city1: City, city2: City, numPoints: number = 30): [number, number][] {
-  const points: [number, number][] = []
-  
-  // Calculate distance and direction vector
-  const dx = city2.lng - city1.lng
-  const dy = city2.lat - city1.lat
-  const distance = Math.sqrt(dx * dx + dy * dy)
-  
-  // Calculate perpendicular offset for arc height
-  // Use a fraction of the distance to create a nice curve
-  const arcHeight = distance * 0.25 // Adjust this to change arc height
-  
-  // Calculate perpendicular vector (rotated 90 degrees counterclockwise)
-  const perpX = -dy / distance
-  const perpY = dx / distance
-  
-  // Generate points along the arc
-  for (let i = 0; i <= numPoints; i++) {
-    const t = i / numPoints
-    
-    // Linear interpolation between cities
-    const baseLat = city1.lat + (city2.lat - city1.lat) * t
-    const baseLng = city1.lng + (city2.lng - city1.lng) * t
-    
-    // Add perpendicular offset to create arc
-    // Use a quadratic curve (ease in/out) for smoother arc
-    // This creates a curve that peaks at the midpoint (t=0.5)
-    const offsetFactor = 4 * t * (1 - t) // Creates a smooth curve from 0 to 1 and back to 0
-    const offsetLat = perpX * arcHeight * offsetFactor
-    const offsetLng = perpY * arcHeight * offsetFactor
-    
-    points.push([baseLat + offsetLat, baseLng + offsetLng])
-  }
-  
-  return points
+// Helper function to get line points between two cities (straight line)
+function getLinePoints(city1: City, city2: City): [number, number][] {
+  return [
+    [city1.lat, city1.lng],
+    [city2.lat, city2.lng]
+  ]
 }
 
-// Component to draw an arc between two cities
-function CityArc({ city1, city2 }: { city1: City; city2: City }) {
-  const arcPoints = generateArcPoints(city1, city2)
+// Helper function to check if two line segments intersect
+// Uses the cross product method to determine if segments intersect
+function doSegmentsIntersect(
+  p1: [number, number],
+  p2: [number, number],
+  p3: [number, number],
+  p4: [number, number]
+): boolean {
+  // Helper function to calculate cross product
+  const crossProduct = (o: [number, number], a: [number, number], b: [number, number]): number => {
+    return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+  }
+
+  // Check if point p3 and p4 are on opposite sides of line p1-p2
+  const d1 = crossProduct(p1, p2, p3)
+  const d2 = crossProduct(p1, p2, p4)
+  
+  // Check if point p1 and p2 are on opposite sides of line p3-p4
+  const d3 = crossProduct(p3, p4, p1)
+  const d4 = crossProduct(p3, p4, p2)
+  
+  // Segments intersect if points are on opposite sides of each line
+  // Also handle collinear cases (when cross product is 0)
+  const hasOppositeSigns = (a: number, b: number) => (a > 0 && b < 0) || (a < 0 && b > 0)
+  
+  if (hasOppositeSigns(d1, d2) && hasOppositeSigns(d3, d4)) {
+    return true
+  }
+  
+  // Handle collinear cases (segments on the same line)
+  if (d1 === 0 && isPointOnSegment(p1, p2, p3)) return true
+  if (d2 === 0 && isPointOnSegment(p1, p2, p4)) return true
+  if (d3 === 0 && isPointOnSegment(p3, p4, p1)) return true
+  if (d4 === 0 && isPointOnSegment(p3, p4, p2)) return true
+  
+  return false
+}
+
+// Helper function to check if a point is on a line segment
+function isPointOnSegment(
+  segStart: [number, number],
+  segEnd: [number, number],
+  point: [number, number]
+): boolean {
+  const minX = Math.min(segStart[0], segEnd[0])
+  const maxX = Math.max(segStart[0], segEnd[0])
+  const minY = Math.min(segStart[1], segEnd[1])
+  const maxY = Math.max(segStart[1], segEnd[1])
+  
+  return (
+    point[0] >= minX &&
+    point[0] <= maxX &&
+    point[1] >= minY &&
+    point[1] <= maxY
+  )
+}
+
+// Helper function to check if two straight lines intersect
+function doLinesIntersect(
+  line1Points: [number, number][],
+  line2Points: [number, number][]
+): boolean {
+  // For straight lines, we just have two points each
+  if (line1Points.length < 2 || line2Points.length < 2) {
+    return false
+  }
+  
+  return doSegmentsIntersect(
+    line1Points[0],
+    line1Points[1],
+    line2Points[0],
+    line2Points[1]
+  )
+}
+
+// Helper function to check if a new line would cross any existing lines
+function wouldLineCrossExisting(
+  newCity1: City,
+  newCity2: City,
+  existingLines: Array<{ city1: City; city2: City }>
+): boolean {
+  const newLinePoints = getLinePoints(newCity1, newCity2)
+  
+  for (const existingLine of existingLines) {
+    const existingLinePoints = getLinePoints(existingLine.city1, existingLine.city2)
+    
+    // Skip if lines share an endpoint (they're connected, not crossing)
+    const sharesEndpoint =
+      (newCity1.name === existingLine.city1.name || newCity1.name === existingLine.city2.name) ||
+      (newCity2.name === existingLine.city1.name || newCity2.name === existingLine.city2.name)
+    
+    if (sharesEndpoint) {
+      continue
+    }
+    
+    if (doLinesIntersect(newLinePoints, existingLinePoints)) {
+      return true
+    }
+  }
+  
+  return false
+}
+
+// Component to draw a line between two cities
+function CityLine({ city1, city2, color = '#4caf50' }: { city1: City; city2: City; color?: string }) {
+  const linePoints = getLinePoints(city1, city2)
   
   return (
     <Polyline
-      positions={arcPoints}
+      positions={linePoints}
       pathOptions={{
-        color: '#4caf50',
+        color: color,
         weight: 3,
         opacity: 0.7,
       }}
@@ -153,13 +226,23 @@ function App() {
   const [currentHighlightedCity, setCurrentHighlightedCity] = useState<City | null>(null)
   const [availableCities, setAvailableCities] = useState<City[]>([])
   const [guessedCities, setGuessedCities] = useState<City[]>([])
-  const [wrongGuesses, setWrongGuesses] = useState<City[]>([])
   const [lastGuessedCity, setLastGuessedCity] = useState<City | null>(null)
   const [message, setMessage] = useState<string>('')
   const [geoJsonData, setGeoJsonData] = useState<GeoJsonObject | null>(null)
   const [autocompleteValue, setAutocompleteValue] = useState<string | null>(null)
   const [autocompleteInputValue, setAutocompleteInputValue] = useState<string>('')
   const [autocompleteKey, setAutocompleteKey] = useState<number>(0)
+  const autocompleteInputRef = useRef<HTMLInputElement | null>(null)
+  const [rejectedArc, setRejectedArc] = useState<{ city1: City; city2: City } | null>(null)
+
+  // Calculate total distance of connected cities
+  const totalDistance = guessedCities.length > 1
+    ? guessedCities.reduce((total, city, index) => {
+        if (index === 0) return total
+        const previousCity = guessedCities[index - 1]
+        return total + selector.calculateDistance(previousCity, city)
+      }, 0)
+    : 0
 
   // Load GeoJSON data
   useEffect(() => {
@@ -178,8 +261,8 @@ function App() {
     // Add starting city to guessed cities so it's not offered again
     setGuessedCities([startCity])
     
-    // Find 3 closest cities to the starting city
-    const closest = selector.findClosestCities(startCity, [startCity], 3)
+    // Find 10 closest cities to the starting city
+    const closest = selector.findClosestCities(startCity, [startCity], 10)
     setAvailableCities(closest)
     
     // Show popup for starting city after a short delay
@@ -193,6 +276,13 @@ function App() {
     setAutocompleteValue(null)
     setAutocompleteInputValue('')
     setAutocompleteKey(prev => prev + 1)
+    
+    // Refocus the input after clearing
+    setTimeout(() => {
+      if (autocompleteInputRef.current) {
+        autocompleteInputRef.current.focus()
+      }
+    }, 0)
     
     if (!cityName || !currentHighlightedCity) {
       return
@@ -209,21 +299,35 @@ function App() {
       return
     }
     
-    // Check if it's a wrong guess
-    if (wrongGuesses.some(c => c.name === cityName)) {
-      setMessage(`${cityName} was already guessed incorrectly.`)
+    // Check if it's in the available cities (10 closest)
+    const isAvailable = availableCities.some(c => c.name === cityName)
+    
+    if (!isAvailable) {
+      setMessage(`${cityName} is not in the 10 closest cities. Choose one of the highlighted cities.`)
       setTimeout(() => setMessage(''), 2000)
       return
     }
     
-    // Check if it's in the available cities
-    const isAvailable = availableCities.some(c => c.name === cityName)
+    // Check if the new line (from currentHighlightedCity to guessedCity) would cross existing lines
+    // Build list of existing lines (from guessedCities)
+    const existingLines: Array<{ city1: City; city2: City }> = []
+    for (let i = 0; i < guessedCities.length - 1; i++) {
+      existingLines.push({
+        city1: guessedCities[i],
+        city2: guessedCities[i + 1],
+      })
+    }
     
-    if (!isAvailable) {
-      // Wrong guess - not in available cities
-      setWrongGuesses(prev => [...prev, guessedCity])
-      setMessage(`${cityName} is not available. Choose one of the highlighted cities.`)
-      setTimeout(() => setMessage(''), 2000)
+    // Check if the new line (from currentHighlightedCity to guessedCity) would cross existing lines
+    if (wouldLineCrossExisting(currentHighlightedCity, guessedCity, existingLines)) {
+      // Show the rejected line in red for visual feedback
+      setRejectedArc({ city1: currentHighlightedCity, city2: guessedCity })
+      setMessage(`This path would cross an existing route. Choose a different city.`)
+      setTimeout(() => setMessage(''), 3000)
+      // Clear the rejected line after 3 seconds
+      setTimeout(() => {
+        setRejectedArc(null)
+      }, 3000)
       return
     }
     
@@ -235,23 +339,26 @@ function App() {
     // Update highlighted city to the guessed city
     setCurrentHighlightedCity(guessedCity)
     
-    // Find 3 closest cities to the newly guessed city (excluding all guessed cities and wrong guesses)
-    const excludedCities = [...newGuessedCities, ...wrongGuesses]
-    const newAvailableCities = selector.findClosestCities(guessedCity, excludedCities, 3)
+    // Find 10 closest cities to the newly guessed city (excluding all guessed cities)
+    const newAvailableCities = selector.findClosestCities(guessedCity, newGuessedCities, 10)
     setAvailableCities(newAvailableCities)
     
     // Show success message
-    setMessage(`Great! Now guess one of the 3 closest cities to ${cityName}`)
+    setMessage(`Great! Now choose one of the 10 closest cities to ${cityName}`)
     setTimeout(() => setMessage(''), 3000)
   }
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100%' }}>
       <AppBar position="static">
-        <Toolbar>
+        <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Typography variant="h6" component="div">
             Ticket to Europe
           </Typography>
+          <Typography variant="h6" component="div" sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+            {totalDistance > 0 ? `${Math.round(totalDistance)} km` : '0 km'}
+          </Typography>
+          <Box sx={{ width: '120px' }} /> {/* Spacer for centering */}
         </Toolbar>
       </AppBar>
       <Container sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: 0, height: '100%', overflow: 'hidden', position: 'relative' }}>
@@ -277,20 +384,24 @@ function App() {
                 })}
               />
             )}
-            {/* Draw arcs between consecutive guessed cities */}
+            {/* Draw lines between consecutive guessed cities */}
             {guessedCities.length > 1 && guessedCities.map((city, index) => {
               if (index === 0) return null // Skip first city (no previous city to connect)
               const previousCity = guessedCities[index - 1]
               return (
-                <CityArc key={`arc-${previousCity.name}-${city.name}`} city1={previousCity} city2={city} />
+                <CityLine key={`line-${previousCity.name}-${city.name}`} city1={previousCity} city2={city} />
               )
             })}
+            {/* Draw rejected line in red (temporary visual feedback) */}
+            {rejectedArc && (
+              <CityLine city1={rejectedArc.city1} city2={rejectedArc.city2} color="#f44336" />
+            )}
             {europeanCitiesData.map((city) => {
               const isStartingCity = startingCity?.name === city.name && guessedCities.length === 0
               const isHighlighted = currentHighlightedCity?.name === city.name && !isStartingCity
               const isAvailable = availableCities.some(c => c.name === city.name)
               const isGuessed = guessedCities.some(c => c.name === city.name) || isStartingCity
-              const isWrongGuess = wrongGuesses.some(c => c.name === city.name)
+              const isWrongGuess = false // All cities are available now
               
               return (
                 <CityMarker 
@@ -358,7 +469,18 @@ function App() {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label={currentHighlightedCity ? `Guess a city near ${currentHighlightedCity.name}` : 'Search European Cities'}
+                inputRef={(input) => {
+                  autocompleteInputRef.current = input
+                  if (params.inputProps?.ref) {
+                    if (typeof params.inputProps.ref === 'function') {
+                      params.inputProps.ref(input)
+                    } else {
+                      (params.inputProps.ref as any).current = input
+                    }
+                  }
+                }}
+                autoFocus
+                label={currentHighlightedCity ? `Guess one of the 10 closest cities to ${currentHighlightedCity.name}` : 'Search European Cities'}
                 variant="outlined"
                 sx={{
                   '& .MuiOutlinedInput-root': {
