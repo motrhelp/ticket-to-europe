@@ -11,26 +11,41 @@ export const europeanCitiesData: City[] = [
   { name: 'London', lat: 51.5074, lng: -0.1278 }, // Capital
   { name: 'Birmingham', lat: 52.4862, lng: -1.8904 },
   { name: 'Manchester', lat: 53.4808, lng: -2.2426 },
+  { name: 'Glasgow', lat: 55.8642, lng: -4.2518 },
+  { name: 'Liverpool', lat: 53.4084, lng: -2.9916 },
+  { name: 'Leeds', lat: 53.8008, lng: -1.5491 },
   
   // France
   { name: 'Paris', lat: 48.8566, lng: 2.3522 }, // Capital
   { name: 'Lyon', lat: 45.7640, lng: 4.8357 },
   { name: 'Marseille', lat: 43.2965, lng: 5.3698 },
+  { name: 'Toulouse', lat: 43.6047, lng: 1.4442 },
+  { name: 'Nice', lat: 43.7102, lng: 7.2620 },
+  { name: 'Nantes', lat: 47.2184, lng: -1.5536 },
   
   // Germany
   { name: 'Berlin', lat: 52.5200, lng: 13.4050 }, // Capital
   { name: 'Hamburg', lat: 53.5511, lng: 9.9937 },
   { name: 'Munich', lat: 48.1351, lng: 11.5820 },
+  { name: 'Cologne', lat: 50.9375, lng: 6.9603 },
+  { name: 'Frankfurt', lat: 50.1109, lng: 8.6821 },
+  { name: 'Stuttgart', lat: 48.7758, lng: 9.1829 },
   
   // Italy
   { name: 'Rome', lat: 41.9028, lng: 12.4964 }, // Capital
   { name: 'Milan', lat: 45.4642, lng: 9.1900 },
   { name: 'Naples', lat: 40.8518, lng: 14.2681 },
+  { name: 'Turin', lat: 45.0703, lng: 7.6869 },
+  { name: 'Palermo', lat: 38.1157, lng: 13.3613 },
+  { name: 'Genoa', lat: 44.4056, lng: 8.9463 },
   
   // Spain
   { name: 'Madrid', lat: 40.4168, lng: -3.7038 }, // Capital
   { name: 'Barcelona', lat: 41.3851, lng: 2.1734 },
   { name: 'Valencia', lat: 39.4699, lng: -0.3763 },
+  { name: 'Seville', lat: 37.3891, lng: -5.9845 },
+  { name: 'Zaragoza', lat: 41.6488, lng: -0.8891 },
+  { name: 'Malaga', lat: 36.7213, lng: -4.4214 },
   
   // Netherlands
   { name: 'Amsterdam', lat: 52.3676, lng: 4.9041 }, // Capital
@@ -56,6 +71,9 @@ export const europeanCitiesData: City[] = [
   { name: 'Warsaw', lat: 52.2297, lng: 21.0122 }, // Capital
   { name: 'Krakow', lat: 50.0647, lng: 19.9450 },
   { name: 'Lodz', lat: 51.7592, lng: 19.4560 },
+  { name: 'Wroclaw', lat: 51.1079, lng: 17.0385 },
+  { name: 'Poznan', lat: 52.4064, lng: 16.9252 },
+  { name: 'Gdansk', lat: 54.3520, lng: 18.6466 },
   
   // Czech Republic
   { name: 'Prague', lat: 50.0755, lng: 14.4378 }, // Capital
@@ -66,6 +84,9 @@ export const europeanCitiesData: City[] = [
   { name: 'Bucharest', lat: 44.4268, lng: 26.1025 }, // Capital
   { name: 'Cluj-Napoca', lat: 46.7712, lng: 23.6236 },
   { name: 'Constanta', lat: 44.1598, lng: 28.6348 },
+  { name: 'Timisoara', lat: 45.7489, lng: 21.2087 },
+  { name: 'Iasi', lat: 47.1585, lng: 27.6014 },
+  { name: 'Brasov', lat: 45.6427, lng: 25.5887 },
   
   // Hungary
   { name: 'Budapest', lat: 47.4979, lng: 19.0402 }, // Capital
@@ -174,6 +195,9 @@ export const europeanCitiesData: City[] = [
   { name: 'Kiev', lat: 50.4501, lng: 30.5234 }, // Capital
   { name: 'Kharkiv', lat: 49.9935, lng: 36.2304 },
   { name: 'Odessa', lat: 46.4825, lng: 30.7233 },
+  { name: 'Dnipro', lat: 48.4647, lng: 35.0462 },
+  { name: 'Donetsk', lat: 48.0159, lng: 37.8029 },
+  { name: 'Lviv', lat: 49.8397, lng: 24.0297 },
   
   // Belarus
   { name: 'Minsk', lat: 53.9045, lng: 27.5615 }, // Capital

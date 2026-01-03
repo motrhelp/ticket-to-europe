@@ -161,7 +161,10 @@ function CityMarker({
   isAvailable,
   isGuessed,
   isWrongGuess,
-  openPopup
+  openPopup,
+  cashInfo,
+  isStartingCity,
+  onMarkerClick
 }: { 
   city: { name: string; lat: number; lng: number }
   isHighlighted: boolean
@@ -169,6 +172,9 @@ function CityMarker({
   isGuessed: boolean
   isWrongGuess: boolean
   openPopup: boolean
+  cashInfo: number | null
+  isStartingCity: boolean
+  onMarkerClick: () => void
 }) {
   const markerRef = useRef<L.Marker>(null)
   
@@ -213,9 +219,39 @@ function CityMarker({
     iconAnchor: [size / 2, size / 2],
   })
 
+  // Determine popup content based on city state
+  let popupContent = city.name
+  if (isStartingCity && !isGuessed) {
+    // First city - just name
+    popupContent = city.name
+  } else if (isGuessed && cashInfo !== null) {
+    // Correctly guessed city - show name + cash earned
+    popupContent = `${city.name} +${cashInfo}`
+  } else if (isWrongGuess && cashInfo !== null) {
+    // Wrong guess - show name + cash lost
+    popupContent = `${city.name} ${cashInfo}`
+  } else {
+    // Default - just name
+    popupContent = city.name
+  }
+
   return (
-    <Marker ref={markerRef} position={[city.lat, city.lng]} icon={dotIcon}>
-      <Popup>{city.name}</Popup>
+    <Marker 
+      ref={markerRef} 
+      position={[city.lat, city.lng]} 
+      icon={dotIcon}
+      eventHandlers={{
+        click: () => {
+          if (onMarkerClick) {
+            onMarkerClick()
+          }
+          if (markerRef.current) {
+            markerRef.current.openPopup()
+          }
+        }
+      }}
+    >
+      <Popup>{popupContent}</Popup>
     </Marker>
   )
 }
@@ -226,6 +262,7 @@ function App() {
   const [currentHighlightedCity, setCurrentHighlightedCity] = useState<City | null>(null)
   const [availableCities, setAvailableCities] = useState<City[]>([])
   const [guessedCities, setGuessedCities] = useState<City[]>([])
+  const [wrongGuesses, setWrongGuesses] = useState<City[]>([])
   const [lastGuessedCity, setLastGuessedCity] = useState<City | null>(null)
   const [message, setMessage] = useState<string>('')
   const [geoJsonData, setGeoJsonData] = useState<GeoJsonObject | null>(null)
@@ -234,6 +271,9 @@ function App() {
   const [autocompleteKey, setAutocompleteKey] = useState<number>(0)
   const autocompleteInputRef = useRef<HTMLInputElement | null>(null)
   const [rejectedArc, setRejectedArc] = useState<{ city1: City; city2: City } | null>(null)
+  const [cash, setCash] = useState<number>(5)
+  const [cityCashInfo, setCityCashInfo] = useState<Map<string, number>>(new Map()) // Track cash earned/lost per city
+  const [clickedCity, setClickedCity] = useState<string | null>(null)
 
   // Calculate total distance of connected cities
   const totalDistance = guessedCities.length > 1
@@ -267,7 +307,8 @@ function App() {
     
     // Show popup for starting city after a short delay
     setTimeout(() => {
-      setLastGuessedCity(startCity)
+      setClickedCity(startCity.name)
+      setTimeout(() => setClickedCity(null), 100)
     }, 500)
   }, [selector])
 
@@ -303,8 +344,25 @@ function App() {
     const isAvailable = availableCities.some(c => c.name === cityName)
     
     if (!isAvailable) {
-      setMessage(`${cityName} is not in the 10 closest cities. Choose one of the highlighted cities.`)
+      // Incorrect guess - costs 25 cash and add to wrong guesses
+      const newCash = cash - 25
+      setCash(newCash)
+      setWrongGuesses(prev => {
+        // Only add if not already in the list
+        if (!prev.some(c => c.name === cityName)) {
+          return [...prev, guessedCity]
+        }
+        return prev
+      })
+      setMessage(`${cityName} is not in the 10 closest cities. -25 cash.`)
       setTimeout(() => setMessage(''), 2000)
+      
+      // Check if game over (cash went negative)
+      if (newCash < 0) {
+        setTimeout(() => {
+          setMessage('Game Over! You ran out of cash.')
+        }, 2000)
+      }
       return
     }
     
@@ -320,31 +378,65 @@ function App() {
     
     // Check if the new line (from currentHighlightedCity to guessedCity) would cross existing lines
     if (wouldLineCrossExisting(currentHighlightedCity, guessedCity, existingLines)) {
+      // Line crossing attempt - costs 25 cash and add to wrong guesses
+      const newCash = cash - 25
+      setCash(newCash)
+      setCityCashInfo(prev => {
+        const newMap = new Map(prev)
+        newMap.set(cityName, -25)
+        return newMap
+      })
+      setWrongGuesses(prev => {
+        // Only add if not already in the list
+        if (!prev.some(c => c.name === cityName)) {
+          return [...prev, guessedCity]
+        }
+        return prev
+      })
       // Show the rejected line in red for visual feedback
       setRejectedArc({ city1: currentHighlightedCity, city2: guessedCity })
-      setMessage(`This path would cross an existing route. Choose a different city.`)
+      setMessage(`This path would cross an existing route. -25 cash.`)
       setTimeout(() => setMessage(''), 3000)
       // Clear the rejected line after 3 seconds
       setTimeout(() => {
         setRejectedArc(null)
       }, 3000)
+      
+      // Check if game over (cash went negative)
+      if (newCash < 0) {
+        setTimeout(() => {
+          setMessage('Game Over! You ran out of cash.')
+        }, 3000)
+      }
       return
     }
     
-    // Correct guess - add to guessed cities
+    // Correct guess - add to guessed cities and add 5 cash
     const newGuessedCities = [...guessedCities, guessedCity]
     setGuessedCities(newGuessedCities)
     setLastGuessedCity(guessedCity)
+    
+    // Add 5 cash for building a route
+    setCash(prev => prev + 5)
+    setCityCashInfo(prev => {
+      const newMap = new Map(prev)
+      newMap.set(cityName, 5)
+      return newMap
+    })
     
     // Update highlighted city to the guessed city
     setCurrentHighlightedCity(guessedCity)
     
     // Find 10 closest cities to the newly guessed city (excluding all guessed cities)
-    const newAvailableCities = selector.findClosestCities(guessedCity, newGuessedCities, 10)
-    setAvailableCities(newAvailableCities)
+    const closestCities = selector.findClosestCities(guessedCity, newGuessedCities, 10)
+    // Add wrong guesses to available cities (they remain available even if not in 10 closest)
+    const wrongGuessesNotInClosest = wrongGuesses.filter(
+      wg => !closestCities.some(c => c.name === wg.name) && !newGuessedCities.some(c => c.name === wg.name)
+    )
+    setAvailableCities([...closestCities, ...wrongGuessesNotInClosest])
     
     // Show success message
-    setMessage(`Great! Now choose one of the 10 closest cities to ${cityName}`)
+    setMessage(`Great! Connected to ${cityName}. +5 cash.`)
     setTimeout(() => setMessage(''), 3000)
   }
 
@@ -358,7 +450,9 @@ function App() {
           <Typography variant="h6" component="div" sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
             {totalDistance > 0 ? `${Math.round(totalDistance)} km` : '0 km'}
           </Typography>
-          <Box sx={{ width: '120px' }} /> {/* Spacer for centering */}
+          <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', color: cash < 0 ? '#f44336' : 'inherit' }}>
+            ${cash}
+          </Typography>
         </Toolbar>
       </AppBar>
       <Container sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: 0, height: '100%', overflow: 'hidden', position: 'relative' }}>
@@ -401,7 +495,9 @@ function App() {
               const isHighlighted = currentHighlightedCity?.name === city.name && !isStartingCity
               const isAvailable = availableCities.some(c => c.name === city.name)
               const isGuessed = guessedCities.some(c => c.name === city.name) || isStartingCity
-              const isWrongGuess = false // All cities are available now
+              const isWrongGuess = wrongGuesses.some(c => c.name === city.name)
+              const cashInfo = cityCashInfo.get(city.name) || null
+              const openPopup = lastGuessedCity?.name === city.name || clickedCity === city.name
               
               return (
                 <CityMarker 
@@ -411,7 +507,13 @@ function App() {
                   isAvailable={isAvailable}
                   isGuessed={isGuessed}
                   isWrongGuess={isWrongGuess}
-                  openPopup={lastGuessedCity?.name === city.name}
+                  openPopup={openPopup}
+                  cashInfo={cashInfo}
+                  isStartingCity={isStartingCity}
+                  onMarkerClick={() => {
+                    setClickedCity(city.name)
+                    setTimeout(() => setClickedCity(null), 500)
+                  }}
                 />
               )
             })}
