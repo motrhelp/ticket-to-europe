@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { Container, AppBar, Toolbar, Typography, Box, Autocomplete, TextField } from '@mui/material'
+import { Container, AppBar, Toolbar, Typography, Box, Autocomplete, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material'
 import { MapContainer, TileLayer, useMap, Popup, Marker, GeoJSON, Polyline } from 'react-leaflet'
 import L from 'leaflet'
 import type { GeoJsonObject } from 'geojson'
@@ -179,7 +179,8 @@ function CityMarker({
   const markerRef = useRef<L.Marker>(null)
   
   useEffect(() => {
-    if (openPopup && markerRef.current) {
+    // Only open popup for guessed cities or wrong guesses
+    if (openPopup && (isGuessed || isWrongGuess) && markerRef.current) {
       // Small delay to ensure marker is fully initialized
       const timer = setTimeout(() => {
         if (markerRef.current) {
@@ -188,7 +189,7 @@ function CityMarker({
       }, 100)
       return () => clearTimeout(timer)
     }
-  }, [openPopup])
+  }, [openPopup, isGuessed, isWrongGuess])
   
   let size = 6
   let color = '#cccccc' // gray for unavailable cities
@@ -231,7 +232,7 @@ function CityMarker({
     // Wrong guess - show name + cash lost
     popupContent = `${city.name} ${cashInfo}`
   } else {
-    // Default - just name
+    // Default - just name (available cities won't show popup anyway)
     popupContent = city.name
   }
 
@@ -245,13 +246,16 @@ function CityMarker({
           if (onMarkerClick) {
             onMarkerClick()
           }
-          if (markerRef.current) {
+          // Only open popup on click for guessed cities or wrong guesses (green/red)
+          // Available cities (blue) should only trigger modal, not popup
+          if ((isGuessed || isWrongGuess) && markerRef.current) {
             markerRef.current.openPopup()
           }
         }
       }}
     >
-      <Popup>{popupContent}</Popup>
+      {/* Only show popup for guessed cities or wrong guesses */}
+      {(isGuessed || isWrongGuess) && <Popup>{popupContent}</Popup>}
     </Marker>
   )
 }
@@ -272,6 +276,8 @@ function App() {
   const autocompleteInputRef = useRef<HTMLInputElement | null>(null)
   const [rejectedArc, setRejectedArc] = useState<{ city1: City; city2: City } | null>(null)
   const [cash, setCash] = useState<number>(5)
+  const [connectionModalOpen, setConnectionModalOpen] = useState<boolean>(false)
+  const [cityToConnect, setCityToConnect] = useState<City | null>(null)
   const [cityCashInfo, setCityCashInfo] = useState<Map<string, number>>(new Map()) // Track cash earned/lost per city
   const [clickedCity, setClickedCity] = useState<string | null>(null)
 
@@ -440,6 +446,89 @@ function App() {
     setTimeout(() => setMessage(''), 3000)
   }
 
+  const handleConnectionModalYes = () => {
+    if (!cityToConnect || cash < 25) {
+      setConnectionModalOpen(false)
+      setCityToConnect(null)
+      return
+    }
+
+    // Deduct 25 cash
+    const newCash = cash - 25
+    setCash(newCash)
+    setCityCashInfo(prev => {
+      const newMap = new Map(prev)
+      newMap.set(cityToConnect.name, -25)
+      return newMap
+    })
+
+    // Check if the connection would cross existing lines
+    const existingLines: Array<{ city1: City; city2: City }> = []
+    for (let i = 0; i < guessedCities.length - 1; i++) {
+      existingLines.push({
+        city1: guessedCities[i],
+        city2: guessedCities[i + 1],
+      })
+    }
+
+    if (wouldLineCrossExisting(currentHighlightedCity!, cityToConnect, existingLines)) {
+      // Line crossing - show rejected line and message
+      setRejectedArc({ city1: currentHighlightedCity!, city2: cityToConnect })
+      setMessage(`This path would cross an existing route. -25 cash.`)
+      setTimeout(() => setMessage(''), 3000)
+      setTimeout(() => {
+        setRejectedArc(null)
+      }, 3000)
+      
+      // Check if game over
+      if (newCash < 0) {
+        setTimeout(() => {
+          setMessage('Game Over! You ran out of cash.')
+        }, 3000)
+      }
+      
+      setConnectionModalOpen(false)
+      setCityToConnect(null)
+      return
+    }
+
+    // Successful connection - add to guessed cities and add 5 cash
+    const newGuessedCities = [...guessedCities, cityToConnect]
+    setGuessedCities(newGuessedCities)
+    setLastGuessedCity(cityToConnect)
+    
+    // Net cash change: -25 (paid) + 5 (earned) = -20
+    setCityCashInfo(prev => {
+      const newMap = new Map(prev)
+      newMap.set(cityToConnect.name, -20) // Net change
+      return newMap
+    })
+    
+    // Update cash: already deducted 25, now add 5 (net: -20)
+    setCash(newCash + 5)
+    
+    // Update highlighted city
+    setCurrentHighlightedCity(cityToConnect)
+    
+    // Find 10 closest cities to the newly connected city
+    const closestCities = selector.findClosestCities(cityToConnect, newGuessedCities, 10)
+    const wrongGuessesNotInClosest = wrongGuesses.filter(
+      wg => !closestCities.some(c => c.name === wg.name) && !newGuessedCities.some(c => c.name === wg.name)
+    )
+    setAvailableCities([...closestCities, ...wrongGuessesNotInClosest])
+    
+    setMessage(`Connected to ${cityToConnect.name} for $25. Net: -$20.`)
+    setTimeout(() => setMessage(''), 3000)
+    
+    setConnectionModalOpen(false)
+    setCityToConnect(null)
+  }
+
+  const handleConnectionModalNo = () => {
+    setConnectionModalOpen(false)
+    setCityToConnect(null)
+  }
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100%' }}>
       <AppBar position="static">
@@ -497,7 +586,8 @@ function App() {
               const isGuessed = guessedCities.some(c => c.name === city.name) || isStartingCity
               const isWrongGuess = wrongGuesses.some(c => c.name === city.name)
               const cashInfo = cityCashInfo.get(city.name) || null
-              const openPopup = lastGuessedCity?.name === city.name || clickedCity === city.name
+              // Only show popup for guessed cities or wrong guesses
+              const openPopup = (isGuessed || isWrongGuess) && (lastGuessedCity?.name === city.name || clickedCity === city.name)
               
               return (
                 <CityMarker 
@@ -511,8 +601,15 @@ function App() {
                   cashInfo={cashInfo}
                   isStartingCity={isStartingCity}
                   onMarkerClick={() => {
-                    setClickedCity(city.name)
-                    setTimeout(() => setClickedCity(null), 500)
+                    if (isAvailable && !isGuessed && !isWrongGuess) {
+                      // Open connection modal for available cities
+                      setCityToConnect(city)
+                      setConnectionModalOpen(true)
+                    } else {
+                      // Just show popup for other cities
+                      setClickedCity(city.name)
+                      setTimeout(() => setClickedCity(null), 500)
+                    }
                   }}
                 />
               )
@@ -604,6 +701,30 @@ function App() {
           />
         </Box>
       </Container>
+      <Dialog open={connectionModalOpen} onClose={handleConnectionModalNo}>
+        <DialogTitle>Connect to City</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Would you like to connect to this city for $25?
+          </Typography>
+          <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
+            Current cash: ${cash}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleConnectionModalNo} color="secondary">
+            No
+          </Button>
+          <Button 
+            onClick={handleConnectionModalYes} 
+            color="primary" 
+            variant="contained"
+            disabled={cash < 25}
+          >
+            Yes ($25)
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }
